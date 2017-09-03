@@ -37,14 +37,20 @@ Plugin 'othree/html5.vim'
 
 Plugin 'jelera/vim-javascript-syntax'
 Plugin 'pangloss/vim-javascript'
-Plugin 'nathanaelkane/vim-indent-guides'
+" Plugin 'nathanaelkane/vim-indent-guides'
 Plugin 'Raimondi/delimitMate'
-Plugin 'editorconfig/editorconfig-vim'
-" Plugin 'maksimr/vim-jsbeautify'
+" Plugin 'editorconfig/editorconfig-vim'
+Plugin 'maksimr/vim-jsbeautify'
+Plugin 'szw/vim-tags'
+" Plugin 'beautify-web/js-beautify'
+Plugin 'jason0x43/vim-js-indent'
+Plugin 'othree/yajs.vim'
 " Plugin 'leshill/vim-json'
 Plugin 'elzr/vim-json'
-Plugin 'millermedeiros/vim-esformatter'
-Plugin 'qpkorr/vim-bufkill'
+Plugin 'mileszs/ack.vim'
+" Plugin 'millermedeiros/vim-esformatter'
+" Plugin 'qpkorr/vim-bufkill'
+Plugin 'leafgarland/typescript-vim'
 " Plugin 'Shutnik/jshint2.vim'
 " Plugin 'wookiehangover/jshint.vim'
 " Plugin 'webdesus/polymer-ide.vim'
@@ -53,9 +59,9 @@ Bundle 'altercation/vim-colors-solarized'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
-filetype plugin indent on    " required
+" filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
-"filetype plugin on
+filetype plugin on
 "
 " Brief help
 " :PluginList       - lists configured plugins
@@ -72,10 +78,12 @@ set background=dark
 colorscheme solarized
 
 " set guifont=Monaco:h16
-set guifont=Menlo\ Regular:h14
+" set guifont=Menlo\ Regular:h14
 
-filetype plugin indent on
+set undofile
+set undodir=~/.vim/undodir
 set nu
+set textwidth=0 wrapmargin=0
 set textwidth=80
 set cul
 set tabstop=4
@@ -89,6 +97,9 @@ set showmode
 set showcmd
 set laststatus=2
 set ruler
+set autoindent
+set cindent
+imap <C-Return> <CR><CR><C-o>k<Tab>
 " turn syntax highlighting
 syntax on
 set rtp+=~/.fzf
@@ -98,43 +109,59 @@ inoremap jk <esc>
 
 let mapleader = ","
 let maplocalleader = "\\"
+let g:vim_tags_auto_generate = 1
 
 " save with ,s both in normal and insertmode.
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
 nnoremap <leader>p :set paste<cr>
 nnoremap <leader>n :NERDTreeToggle<cr>
-nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
-nnoremap <leader>b :Buffers<cr>
+    nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
+    nnoremap <leader>b :Buffers<cr>
+    nnoremap <c-j> :m .+1<cr>
+    nnoremap <c-k> :m .-2<cr>
 
-" toggle between windows.
-nnoremap <leader>w <C-w>w
-" split window vertically
-nnoremap vv <C-w>v
-" move to left window
-nnoremap <leader>h <C-w>h
-" move to right window
-nnoremap <leader>l <C-w>l
-" move to up window
-nnoremap <leader>k <C-w>k
-" move to down window
-nnoremap <leader>j <C-w>j
-" move current window to right
-nnoremap <leader>r <C-w>r
+    map <c-i> :call HtmlBeautify()<cr>
+    vnoremap <c-j> :call RangeJsBeautify()<cr>
+    vnoremap <c-h> :call RangeHtmlBeautify()<cr>
+    vnoremap <c-c> :call RangeCSSBeautify()<cr>
+    " vnoremap <c-s> :call RangeJsonBeautify()<cr>
 
-" search file.
-nnoremap <leader>f :Files<cr>
-" search in open buffers.
-nnoremap <leader>se :Lines<cr>
-" search in current buffer.
-nnoremap <leader>c :BLines<cr>
-" commands
-nnoremap <leader><leader> :Commands<cr>
+
+    " toggle between windows.
+    nnoremap <leader>w <C-w>w
+    " split window vertically
+    nnoremap <leader>v <C-w>v
+    " move to left window
+    nnoremap <leader>h <C-w>h
+    " move to right window
+    nnoremap <leader>l <C-w>l
+    " move to up window
+    nnoremap <leader>k <C-w>k
+    " move to down window
+    nnoremap <leader>j <C-w>j
+    " move current window to right
+    nnoremap <leader>r <C-w>r
+    " increase window width
+    nnoremap + :vertical res +5<cr>
+    " decrease window width
+    nnoremap _ :vertical res -5<cr>
+
+    " search file.
+    nnoremap <leader>f :Files<cr>
+    " search in open buffers.
+    nnoremap <leader>se :Lines<cr>
+    " search in current buffer.
+    nnoremap <leader>c :BLines<cr>
+    " commands
+    nnoremap <leader><leader> :Commands<cr>
+    " search string across all files/folders.
+    nnoremap <leader>a :Ack<space>
 
 nmap <silent> <leader>ev :e $MYVIMRC<CR>
 nmap <silent> <leader>sv :so $MYVIMRC<CR>
 " format html file on saving.
-autocmd BufWritePre *.html :normal gg=G
+" autocmd BufWritePre *.html :normal gg=G
 " move cursor to the open window instead of tree window.
 autocmd vimenter * NERDTree | wincmd p
 " show hiddden files in nerd tree.
@@ -155,8 +182,6 @@ let g:syntastic_javascript_checkers=['jshint']
 let g:syntastic_html_checkers=['jshint']
 " let g:syntastic_javascript_eslint_args = '--rulesdir "$HOME"/.jscsrc'
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
@@ -165,7 +190,6 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 autocmd BufNewFile,BufRead *.json set ft=javascript
 
-" map <c-b> :call JsBeautify()<cr>
 
 " autocmd FileType javascript noremap <buffer>  <c-b> :call JsBeautify()<cr>
 " for json
@@ -183,8 +207,6 @@ nnoremap <silent> <leader>es :Esformatter<CR>
 vnoremap <silent> <leader>es :EsformatterVisual<CR>
 
 " delete buffer but keep window open (requires bufkill.vim)
-map <localleader>bd :BD<CR>
-
-" smarter next/prev buffer (requires bufkill.vim)
-map <localleader>bn :BF<CR>
-map <localleader>bp :BB<CR>
+" map <leader>u :BD<CR>
+map <leader>u :bp\|bd #<CR>
+" let g:ackprg = "ag --vimgrep"
